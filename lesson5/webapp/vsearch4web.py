@@ -1,12 +1,67 @@
 from flask import Flask, render_template, request, escape
 from annotation import search4letters
+import mysql.connector
 
 app = Flask(__name__)
 
 
+# dbconfig = { 'host': '127.0.0.1',
+#              'user': 'vsearch',
+#              'password': 'tmm0gqgB1!',
+#              'database': 'vsearchlogDB', }
+# conn = mysql.connector.connect(**dbconfig)
+# cursor = conn.cursor()
+#
+# # _SQL = """show tables"""
+# _SQL = """insert into log
+#           (phrase, letters, ip, browser_string, results)
+#           values
+#           (%s, %s, %s, %s, %s)"""
+# cursor.execute(_SQL, ('hitch-hiker', 'xyz', '127.0.0.1', 'Safari', 'set()'))
+#
+#
+# _SQL = """select * from log"""
+# cursor.execute(_SQL)
+#
+# for row in cursor.fetchall():
+#     print(row)
+#
+#
+# conn.commit()
+#
+# cursor.close()
+# conn.close()
+
+
 def log_request(req: 'flask_request', res: str) -> None:
-    with open('vsearch.log', 'a') as log:
-        print(req.form, req.remote_addr, req.user_agent, res, file=log, sep='|')
+    dbconfig = {'host': '127.0.0.1',
+                'user': 'vsearch',
+                'password': 'tmm0gqgB1!',
+                'database': 'vsearchlogDB', }
+    conn = mysql.connector.connect(**dbconfig)
+    cursor = conn.cursor()
+
+    # _SQL = """show tables"""
+    _SQL = """insert into log
+              (phrase, letters, ip, browser_string, results)
+              values
+              (%s, %s, %s, %s, %s)"""
+    cursor.execute(_SQL, (req.form['phrase'],
+                          req.form['letters'],
+                          req.remote_addr,
+                          req.user_agent.browser,
+                          res, ))
+
+    # _SQL = """select * from log"""
+    # cursor.execute(_SQL)
+    #
+    # for row in cursor.fetchall():
+    #     print(row)
+
+    conn.commit()
+
+    cursor.close()
+    conn.close()
 
 
 @app.route('/search4', methods=['POST'])
