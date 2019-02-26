@@ -35,4 +35,5 @@ class UseDatabase:
 
         if exc_type is mysql.connector.errors.ProgrammingError:
             raise SQLError(exc_val)
-        elif exc_type(exc_val)
+        else:
+            raise exc_type(exc_val)
